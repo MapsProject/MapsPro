@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Location;
 import android.location.LocationManager;
@@ -36,6 +38,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 
 import org.json.JSONArray;
@@ -61,6 +65,7 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
     FragmentManager fm;
     android.app.FragmentTransaction ft;
     private ClusterManager<StringClusterItem> mClusterManager;
+    Bitmap bow;
 
 
     static class StringClusterItem implements ClusterItem {
@@ -291,12 +296,37 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
             for (int i = 0; i < doll2.size(); i++) {
 
                 final Datafromhere dlm =doll2.get(i);
-                MarkerOptions markerOptions = new MarkerOptions();
+                final MarkerOptions markerOptions = new MarkerOptions();
                 LatLng latLng = new LatLng(dlm.getLatsdata(),dlm.getLngsdata());
                 markerOptions.position(latLng);
                 markerOptions.title(dlm.getName1());
                 markerOptions.snippet(dlm.getVicinity1());
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+
+//                Picasso.with(getContext()).load(dlm.getIcon1()).into(new Target() {
+//
+//                    @Override
+//                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
+//                    {
+//
+//                        bow=bitmap;
+//                    }
+//
+//                    @Override
+//                    public void onBitmapFailed(Drawable errorDrawable) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+//
+//                    }
+//
+//
+//                });
+//
+//                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bow));
+
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 mapo.addMarker(markerOptions);
 
                 mClusterManager.addItem(new StringClusterItem("Marker #" + (i + 1), latLng));
