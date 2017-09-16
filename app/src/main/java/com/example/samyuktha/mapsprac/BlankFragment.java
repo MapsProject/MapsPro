@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Location;
@@ -34,10 +35,13 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
+import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -58,6 +62,7 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
     SearchView sh;
     String here;
     Double rating;
+    private Target target;
     RecyclerView rvs;
     List<Datafromhere> doll,doll2;
     Boolean opennow;
@@ -65,18 +70,98 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
     FragmentManager fm;
     android.app.FragmentTransaction ft;
     private ClusterManager<StringClusterItem> mClusterManager;
-    Bitmap bow;
+    Bitmap bitmaps;
+    Datafromhere dlm;
+    CustomClusterRenderer renderer;
 
 
     static class StringClusterItem implements ClusterItem {
+        public String getTitle() {
+            return title;
+        }
+
         final String title;
         final LatLng latLng;
-        public StringClusterItem(String title, LatLng latLng) {
-            this.title = title;
+        final String vicin;
+        String iconnss;
+        public StringClusterItem(String name1, String title, LatLng latLng, String vicinity1) {
+
+            this.iconnss = title;
             this.latLng = latLng;
+            this.vicin=vicinity1;
+            this.title=name1;
         }
         @Override public LatLng getPosition() {
             return latLng;
+        }
+
+
+        public String getVicin() {
+            return vicin;
+        }
+
+        public String getIconnss() {
+            return iconnss;
+        }
+    }
+
+    public class CustomClusterRenderer extends DefaultClusterRenderer<StringClusterItem> {
+        private final Context mContext;
+        public CustomClusterRenderer(Context context, GoogleMap map,
+                                     ClusterManager<BlankFragment.StringClusterItem> clusterManager) {
+            super(context, map, clusterManager);
+            mContext = context;
+        }
+
+        @Override
+        protected boolean shouldRenderAsCluster(Cluster<StringClusterItem> cluster) {
+            return cluster.getSize()>1;
+        }
+
+
+
+        @Override protected void onBeforeClusterItemRendered(BlankFragment.StringClusterItem item,
+                                                             MarkerOptions markerOptions) {
+
+                markerOptions.title(item.getTitle());
+              markerOptions.snippet(item.getVicin());
+            markerOptions.position(item.getPosition());
+
+            String sms = dlm.getIcon1();
+
+            final Target mTarget = new Target() {
+                @Override
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
+                    Log.d("DEBUG1", "onBitmapLoaded");
+                    bitmaps = bitmap;
+
+                }
+
+                @Override
+                public void onBitmapFailed(Drawable drawable) {
+                    Log.d("DEBUG", "onBitmapFailed");
+                }
+
+                @Override
+                public void onPrepareLoad(Drawable drawable) {
+                    Log.d("DEBUG", "onPrepareLoad");
+                }
+            };
+
+            Picasso.with(getContext()).load(sms).into(mTarget);
+
+
+            if(bitmaps==null) {
+
+
+                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            }
+            else
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bitmaps));
+//                mapo.addMarker(markerOptions);
+
+
+
         }
     }
 
@@ -202,24 +287,76 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
             }
         });
 
+
+
         mapo.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
             @Override
             public void onInfoWindowClick(Marker marker) {
-                Intent ins = new Intent(getActivity(), Main2Activity.class);
-                LatLng loss= marker.getPosition();
-                Double l1= loss.latitude;
-                Double l2= loss.longitude;
-                ins.putExtra("h1",marker.getTitle());
-                ins.putExtra("h2",l1.toString());
-                ins.putExtra("h3",l2.toString());
-                ins.putExtra("h4",marker.getSnippet());
-                startActivity(ins);
+
+
+                Toast.makeText(getActivity(),"checking..",Toast.LENGTH_SHORT).show();
+                Log.d("jsdhegfe","hagefe");
+//                Intent ins = new Intent(getActivity(), Main2Activity.class);
+//                LatLng loss= marker.getPosition();
+//                Double l1= loss.latitude;
+//                Double l2= loss.longitude;
+//                ins.putExtra("h1",marker.getTitle());
+//                ins.putExtra("h2",l1.toString());
+//                ins.putExtra("h3",l2.toString());
+//                ins.putExtra("h4",marker.getSnippet());
+//                startActivity(ins);
 
             }
         });
 
+
+
         mClusterManager = new ClusterManager<>(getActivity(), mapo);
         mapo.setOnCameraChangeListener(mClusterManager);
+        mapo.setOnMarkerClickListener(mClusterManager);
+
+//        mClusterManager.getMarkerCollection()
+//                .setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(getActivity())));
+//        mapo.setInfoWindowAdapter(mClusterManager.getMarkerManager());
+
+
+        mapo.setOnMarkerClickListener(mClusterManager);
+        mapo.setOnInfoWindowClickListener(mClusterManager);
+
+         renderer = new CustomClusterRenderer(getActivity(), mapo, mClusterManager);
+        mClusterManager.setRenderer(renderer);
+
+        mClusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<StringClusterItem>() {
+            @Override
+            public boolean onClusterClick(Cluster<StringClusterItem> cluster) {
+                LatLngBounds.Builder builder = LatLngBounds.builder();
+                for (ClusterItem item : cluster.getItems()) {
+                    builder.include(item.getPosition());
+                }
+                final LatLngBounds bounds = builder.build();
+                mapo.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                return true;
+            }
+        });
+
+
+        mClusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<StringClusterItem>() {
+            @Override
+            public void onClusterItemInfoWindowClick(StringClusterItem stringClusterItem) {
+                Log.d("jhbsdv"," "+stringClusterItem.getTitle());
+
+                                Intent ins = new Intent(getActivity(), Main2Activity.class);
+                LatLng loss= stringClusterItem.getPosition();
+                Double l1= loss.latitude;
+                Double l2= loss.longitude;
+                ins.putExtra("h1",stringClusterItem.getTitle());
+                ins.putExtra("h2",l1.toString());
+                ins.putExtra("h3",l2.toString());
+                ins.putExtra("h4",stringClusterItem.getVicin());
+                ins.putExtra("h5",stringClusterItem.getIconnss());
+                startActivity(ins);
+            }
+        });
 
     }
 
@@ -252,6 +389,7 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             doll2=new ArrayList<Datafromhere>();
+
             try {
                 JSONObject reader = new JSONObject(s);
                 JSONArray abc= reader.getJSONArray("results");
@@ -295,41 +433,11 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
             Log.d("around"," "+doll2.size());
             for (int i = 0; i < doll2.size(); i++) {
 
-                final Datafromhere dlm =doll2.get(i);
-                final MarkerOptions markerOptions = new MarkerOptions();
+
+                dlm =doll2.get(i);
                 LatLng latLng = new LatLng(dlm.getLatsdata(),dlm.getLngsdata());
-                markerOptions.position(latLng);
-                markerOptions.title(dlm.getName1());
-                markerOptions.snippet(dlm.getVicinity1());
 
-//                Picasso.with(getContext()).load(dlm.getIcon1()).into(new Target() {
-//
-//                    @Override
-//                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from)
-//                    {
-//
-//                        bow=bitmap;
-//                    }
-//
-//                    @Override
-//                    public void onBitmapFailed(Drawable errorDrawable) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onPrepareLoad(Drawable placeHolderDrawable) {
-//
-//                    }
-//
-//
-//                });
-//
-//                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bow));
-
-            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                mapo.addMarker(markerOptions);
-
-                mClusterManager.addItem(new StringClusterItem("Marker #" + (i + 1), latLng));
+                mClusterManager.addItem(new StringClusterItem(dlm.getName1(), dlm.getIcon1(),latLng,dlm.getVicinity1()));
 
                 // move map camera
                 mapo.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(dlm.getLatsdata(),dlm.getLngsdata())));

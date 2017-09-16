@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.squareup.picasso.Picasso;
 
 public class Main2Activity extends AppCompatActivity implements LocationListener {
 
@@ -43,12 +44,13 @@ public class Main2Activity extends AppCompatActivity implements LocationListener
 
 
 
-        Intent ink= getIntent();
+       Intent ink= getIntent();
         title.setText(ink.getStringExtra("h1"));
         lats.setText(ink.getStringExtra("h2"));
         longs.setText(ink.getStringExtra("h3"));
         addresss.setText(ink.getStringExtra("h4"));
 
+        Picasso.with(this).load(ink.getStringExtra("h5")).into(img);
         dlat=Double.parseDouble(lats.getText().toString());
                 dlon=Double.parseDouble(longs.getText().toString());
 

@@ -50,7 +50,7 @@ public class BlankFragment2 extends android.app.Fragment {
 
         r.setLayoutManager(gm);
 
-        Rec2 adapter= new Rec2(gtlisthr);
+        Rec2 adapter= new Rec2(gtlisthr,getActivity());
 
         r.setAdapter(adapter);
 

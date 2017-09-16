@@ -35,7 +35,7 @@
         android:layout_marginRight="15dp"
         android:layout_marginBottom="95dp"
         android:visibility="invisible"
-        android:backgroundTint="#ffffff"
+        app:backgroundTint="#ffffff"
         android:src="@drawable/ic_dashboard_black_24dp"
        />
 
@@ -51,7 +51,7 @@
         android:visibility="invisible"
         android:layout_marginRight="95dp"
         android:layout_marginBottom="15dp"
-        android:backgroundTint="#ffffff"
+        app:backgroundTint="#ffffff"
         android:src="@drawable/abc"/>
 
 
@@ -65,7 +65,7 @@
         app:fabSize="normal"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="15dp"
-        android:backgroundTint="#ffffff"
+        app:backgroundTint="#ffffff"
         android:src="@drawable/ic_settings_black_24dp"/>
 
     <android.support.v7.widget.RecyclerView

@@ -124,9 +124,6 @@ public class MainActivity extends AppCompatActivity   {
     }
 
 
-
-
-
     public void addMarkercustom(Double lat1, Double lng1)
     {
         LatLng TutorialsPoint = new LatLng(lat1, lng1);
