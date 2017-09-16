@@ -315,9 +315,6 @@ public class BlankFragment extends android.app.Fragment implements OnMapReadyCal
         mapo.setOnCameraChangeListener(mClusterManager);
         mapo.setOnMarkerClickListener(mClusterManager);
 
-//        mClusterManager.getMarkerCollection()
-//                .setOnInfoWindowAdapter(new CustomInfoViewAdapter(LayoutInflater.from(getActivity())));
-//        mapo.setInfoWindowAdapter(mClusterManager.getMarkerManager());
 
 
         mapo.setOnMarkerClickListener(mClusterManager);
